@@ -43,7 +43,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 def main():
-    # ИСПРАВЛЕНИЕ: Токен нужно получать из переменной окружения по ее имени, а не передавать сам токен внутрь get()
+    # Получаем токен из переменных окружения Render
     token = os.environ.get("BOT_TOKEN")
     if not token:
         raise ValueError("Не найден токен BOT_TOKEN в переменных окружения!")
