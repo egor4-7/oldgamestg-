@@ -11,6 +11,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             background-color: #0d0f18;
@@ -45,11 +46,6 @@
             font-weight: bold;
             margin-bottom: 25px;
             text-shadow: 0 0 10px #00ffcc, 0 0 20px #ff00ff;
-            animation: pulse 2s infinite alternate;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); text-shadow: 0 0 10px #00ffcc; }
-            100% { transform: scale(1.03); text-shadow: 0 0 20px #ff00ff; }
         }
         .play-btn {
             background: linear-gradient(45deg, #00ffcc, #ff00ff);
@@ -63,19 +59,18 @@
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
         }
 
-        /* Меню игр с плавным скроллом */
+        /* Меню игр */
         #menu-screen {
             justify-content: flex-start;
             padding: 20px 15px;
             overflow-y: auto;
-            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
         .menu-title {
             font-size: 1.5rem;
             margin: 10px 0 20px 0;
             color: #ff00ff;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .games-container {
             width: 100%;
@@ -94,11 +89,10 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
         }
         .game-card:active {
-            transform: scale(0.98);
-            background: rgba(0, 255, 204, 0.15);
+            transform: scale(0.97);
+            background: rgba(0, 255, 204, 0.2);
         }
         .game-info h3 {
             font-size: 1.1rem;
@@ -157,12 +151,248 @@
     <!-- 1. Заставка -->
     <div id="splash-screen" class="screen">
         <div class="logo-glow">🕹️ RETRO<br>ARCADE HUB</div>
-        <button class="play-btn" onclick="openMenu()">ИГРАТЬ</button>
+        <button class="play-btn" id="mainPlayBtn">ИГРАТЬ</button>
     </div>
 
     <!-- 2. Меню выбора игр -->
     <div id="menu-screen" class="screen hidden">
         <h2 class="menu-title">Выберите игру</h2>
         <div class="games-container">
-            <div class="game-card" onclick="startGame('snake')">
-                
+            <div class="game-card" data-game="snake">
+                <div class="game-info">
+                    <h3>Змейка</h3>
+                    <p>Классика Nokia с растущим хвостом</p>
+                </div>
+                <div class="game-icon">🐍</div>
+            </div>
+            <div class="game-card" data-game="tetris">
+                <div class="game-info">
+                    <h3>Тетрис</h3>
+                    <p>Складывай падающие фигурки</p>
+                </div>
+                <div class="game-icon">🧱</div>
+            </div>
+            <div class="game-card" data-game="pong">
+                <div class="game-info">
+                    <h3>Ретро Понг</h3>
+                    <p>Легендарный теннис от первого лица</p>
+                </div>
+                <div class="game-icon">🏓</div>
+            </div>
+            <div class="game-card" data-game="dino">
+                <div class="game-info">
+                    <h3>Динозаврик</h3>
+                    <p>Прыгай через препятствия в пустыне</p>
+                </div>
+                <div class="game-icon">🦖</div>
+            </div>
+            <div class="game-card" data-game="minesweeper">
+                <div class="game-info">
+                    <h3>Сапер</h3>
+                    <p>Найди мины и не подорвись</p>
+                </div>
+                <div class="game-icon">💣</div>
+            </div>
+            <div class="game-card" data-game="puzzle15">
+                <div class="game-info">
+                    <h3>Пятнашки</h3>
+                    <p>Собери цифры по порядку</p>
+                </div>
+                <div class="game-icon">🔲</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Игровое поле -->
+    <div id="game-screen" class="screen hidden">
+        <div class="game-header">
+            <button class="back-btn" id="backBtn">← Назад</button>
+            <h3 id="active-game-title" style="color: #00ffcc;">Игра</h3>
+            <div style="width: 60px;"></div>
+        </div>
+        <div id="game-container">
+            <canvas id="gameCanvas" width="300" height="380"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Обработчики через addEventListener для идеальной работы на iOS / Android в Telegram
+        document.getElementById('mainPlayBtn').addEventListener('click', openMenu);
+        document.getElementById('backBtn').addEventListener('click', returnToMenu);
+
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const gameType = card.getAttribute('data-game');
+                startGame(gameType);
+            });
+        });
+
+        function openMenu() {
+            document.getElementById('splash-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+        }
+
+        function returnToMenu() {
+            stopCurrentGame();
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+        }
+
+        let currentGameInterval = null;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function startGame(type) {
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            stopCurrentGame();
+
+            if (type === 'snake') {
+                document.getElementById('active-game-title').innerText = 'Змейка';
+                initSnake();
+            } else if (type === 'pong') {
+                document.getElementById('active-game-title').innerText = 'Ретро Понг';
+                initPong();
+            } else {
+                let titles = { 'tetris': 'Тетрис', 'dino': 'Динозаврик', 'minesweeper': 'Сапер', 'puzzle15': 'Пятнашки' };
+                document.getElementById('active-game-title').innerText = titles[type] || 'Игра';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ffcc';
+                ctx.font = '16px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText('Игра в разработке!', canvas.width/2, canvas.height/2);
+            }
+        }
+
+        function stopCurrentGame() {
+            if (currentGameInterval) clearInterval(currentGameInterval);
+            canvas.onmousemove = null;
+            canvas.ontouchmove = null;
+        }
+
+        // Логика Змейки
+        function initSnake() {
+            let box = 15;
+            let snake = [{x: 9 * box, y: 10 * box}];
+            let food = {x: Math.floor(Math.random()*18+1)*box, y: Math.floor(Math.random()*22+1)*box};
+            let score = 0;
+            let d = "RIGHT";
+
+            window.addEventListener('keydown', handleKey);
+            function handleKey(e) {
+                if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
+                else if(e.keyCode == 38 && d != "DOWN") d = "UP";
+                else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
+                else if(e.keyCode == 40 && d != "UP") d = "DOWN";
+            }
+
+            function draw() {
+                ctx.fillStyle = "#111";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                for(let i = 0; i < snake.length; i++) {
+                    ctx.fillStyle = (i == 0) ? "#00ffcc" : "#ff00ff";
+                    ctx.fillRect(snake[i].x, snake[i].y, box - 1, box - 1);
+                }
+
+                ctx.fillStyle = "#ff5555";
+                ctx.fillRect(food.x, food.y, box - 1, box - 1);
+
+                let snakeX = snake[0].x;
+                let snakeY = snake[0].y;
+
+                if(d == "LEFT") snakeX -= box;
+                if(d == "UP") snakeY -= box;
+                if(d == "RIGHT") snakeX += box;
+                if(d == "DOWN") snakeY += box;
+
+                if(snakeX == food.x && snakeY == food.y) {
+                    score++;
+                    food = {x: Math.floor(Math.random()*18+1)*box, y: Math.floor(Math.random()*22+1)*box};
+                } else {
+                    snake.pop();
+                }
+
+                let newHead = {x: snakeX, y: snakeY};
+
+                if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+                    clearInterval(currentGameInterval);
+                    window.removeEventListener('keydown', handleKey);
+                    alert('Игра окончена! Счёт: ' + score);
+                    returnToMenu();
+                    return;
+                }
+
+                snake.unshift(newHead);
+            }
+
+            function collision(head, array) {
+                for(let i = 0; i < array.length; i++) {
+                    if(head.x == array[i].x && head.y == array[i].y) return true;
+                }
+                return false;
+            }
+
+            currentGameInterval = setInterval(draw, 130);
+        }
+
+        // Логика Понга
+        function initPong() {
+            let pWidth = 10, pHeight = 60, bRad = 6;
+            let pY = canvas.height / 2 - pHeight / 2;
+            let bX = canvas.width / 2, bY = canvas.height / 2;
+            let bDX = 2.5, bDY = 2.5;
+
+            function updatePaddle(clientY) {
+                let rect = canvas.getBoundingClientRect();
+                pY = clientY - rect.top - pHeight / 2;
+                if(pY < 0) pY = 0;
+                if(pY > canvas.height - pHeight) pY = canvas.height - pHeight;
+            }
+
+            canvas.onmousemove = function(e) { updatePaddle(e.clientY); };
+            canvas.ontouchmove = function(e) {
+                if(e.touches.length > 0) {
+                    updatePaddle(e.touches[0].clientY);
+                }
+            };
+
+            function draw() {
+                ctx.fillStyle = "#111";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#00ffcc";
+                ctx.fillRect(10, pY, pWidth, pHeight);
+
+                ctx.beginPath();
+                ctx.arc(bX, bY, bRad, 0, Math.PI*2);
+                ctx.fillStyle = "#ff00ff";
+                ctx.fill();
+                ctx.closePath();
+
+                bX += bDX;
+                bY += bDY;
+
+                if(bY < bRad || bY > canvas.height - bRad) bDY = -bDY;
+                if(bX <= 20 && bX >= 10 && bY >= pY && bY <= pY + pHeight) {
+                    bDX = -bDX;
+                }
+                if(bX >= canvas.width - bRad) bDX = -bDX;
+
+                if(bX < 0) {
+                    clearInterval(currentGameInterval);
+                    alert('Матч окончен!');
+                    returnToMenu();
+                    return;
+                }
+            }
+
+            currentGameInterval = setInterval(draw, 25);
+        }
+    </script>
+</body>
+</html>
