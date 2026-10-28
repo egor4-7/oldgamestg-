@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Retro Game Hub</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #0d0f18;
+            color: #00ffcc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+        p {
+            font-size: 14px;
+            color: #8b9bb4;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .game-card {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .game-card:active {
+            transform: scale(0.98);
+            border-color: #00ffcc;
+        }
+        .game-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        .game-desc {
+            font-size: 12px;
+            color: #8b9bb4;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>RETRO GAME HUB 🕹️</h1>
+    <p>Выберите игру для запуска прямо в Telegram</p>
+
+    <div class="game-grid">
+        <div class="game-card" onclick="alert('Скоро здесь будет игра Змейка!')">
+            <div class="game-title">🐍 Змейка (Snake)</div>
+            <div class="game-desc">Классическая аркада из 90-х</div>
+        </div>
+        <div class="game-card" onclick="alert('Скоро здесь будет Арканоид!')">
+            <div class="game-title">🧱 Арканоид</div>
+            <div class="game-desc">Разбивайте блоки платформой</div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+    </script>
+</body>
+</html>
