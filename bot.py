@@ -4,12 +4,12 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
-# --- Минимальный HTTP-сервер для бесплатного тарифа Render ---
+# --- Минимальный HTTP-сервер для бесплатного тарифа Render (чтобы бот не спал) ---
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"Game Bot is alive!")
+        self.wfile.write(b"Bot is alive!")
     
     # Отключаем лишние логи в консоли от запросов сервера
     def log_message(self, format, *args):
@@ -24,22 +24,21 @@ def run_health_check_server():
 threading.Thread(target=run_health_check_server, daemon=True).start()
 
 
-# --- Логика Telegram-бота для игр ---
+# --- Логика Telegram-бота ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Ссылка на ваше мини-приложение (хаб с играми на Vercel)
-    web_app_url = "https://oldgamestg.vercel.app"
+    # Ссылка на ваш сайт с играми на Vercel[span_1](start_span)[span_1](end_span)
+    web_app_url = "https://oldgames.app"
     
-    # Создаем кнопку, которая открывает мини-приложение с играми
+    # Создаем кнопку, которая открывает сайт как Mini App прямо в Telegram
     keyboard = [
         [InlineKeyboardButton("🕹️ Открыть Ретро Аркаду", web_app=WebAppInfo(url=web_app_url))]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text(
-        "Привет! Добро пожаловать в **Retro Game Hub** 🎮\n\n"
+        "Привет! Добро пожаловать в Retro Game Hub 🎮\n\n"
         "Нажми на кнопку ниже, чтобы запустить сборник ретро-игр прямо в Telegram:",
-        reply_markup=reply_markup,
-        parse_mode="Markdown"
+        reply_markup=reply_markup
     )
 
 def main():
@@ -51,10 +50,10 @@ def main():
     # Инициализация бота
     application = ApplicationBuilder().token(token).build()
 
-    # Регистрация команды /start
+    # Регистрация команд
     application.add_handler(CommandHandler("start", start))
 
-    print("Game Bot is running...")
+    print("Bot is running...")
     
     # Запуск бота в режиме постоянного опроса
     application.run_polling()
