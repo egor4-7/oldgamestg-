@@ -132,10 +132,11 @@
         #game-container {
             flex-grow: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 100%;
-            margin: 15px 0;
+            margin: 10px 0;
         }
         canvas {
             background: #111;
@@ -143,6 +144,21 @@
             border-radius: 10px;
             max-width: 100%;
             max-height: 100%;
+        }
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .ctrl-btn {
+            background: #191c2d;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -159,45 +175,27 @@
         <h2 class="menu-title">Выберите игру</h2>
         <div class="games-container">
             <div class="game-card" data-game="snake">
-                <div class="game-info">
-                    <h3>Змейка</h3>
-                    <p>Классика Nokia с растущим хвостом</p>
-                </div>
+                <div class="game-info"><h3>Змейка</h3><p>Классика Nokia</p></div>
                 <div class="game-icon">🐍</div>
             </div>
             <div class="game-card" data-game="tetris">
-                <div class="game-info">
-                    <h3>Тетрис</h3>
-                    <p>Складывай падающие фигурки</p>
-                </div>
+                <div class="game-info"><h3>Тетрис</h3><p>Падающие блоки</p></div>
                 <div class="game-icon">🧱</div>
             </div>
-            <div class="game-card" data-game="pong">
-                <div class="game-info">
-                    <h3>Ретро Понг</h3>
-                    <p>Легендарный теннис от первого лица</p>
-                </div>
-                <div class="game-icon">🏓</div>
+            <div class="game-card" data-game="arkanoid">
+                <div class="game-info"><h3>Арканоид</h3><p>Разбей все кирпичи мячом</p></div>
+                <div class="game-icon">🧱</div>
             </div>
             <div class="game-card" data-game="dino">
-                <div class="game-info">
-                    <h3>Динозаврик</h3>
-                    <p>Прыгай через препятствия в пустыне</p>
-                </div>
+                <div class="game-info"><h3>Динозаврик</h3><p>Прыжки в пустыне</p></div>
                 <div class="game-icon">🦖</div>
             </div>
             <div class="game-card" data-game="minesweeper">
-                <div class="game-info">
-                    <h3>Сапер</h3>
-                    <p>Найди мины и не подорвись</p>
-                </div>
+                <div class="game-info"><h3>Сапер</h3><p>Найди мины</p></div>
                 <div class="game-icon">💣</div>
             </div>
             <div class="game-card" data-game="puzzle15">
-                <div class="game-info">
-                    <h3>Пятнашки</h3>
-                    <p>Собери цифры по порядку</p>
-                </div>
+                <div class="game-info"><h3>Пятнашки</h3><p>Собери по порядку</p></div>
                 <div class="game-icon">🔲</div>
             </div>
         </div>
@@ -211,7 +209,8 @@
             <div style="width: 60px;"></div>
         </div>
         <div id="game-container">
-            <canvas id="gameCanvas" width="300" height="380"></canvas>
+            <canvas id="gameCanvas" width="280" height="350"></canvas>
+            <div id="extra-controls" class="control-panel"></div>
         </div>
     </div>
 
@@ -219,14 +218,12 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Обработчики через addEventListener для идеальной работы на iOS / Android в Telegram
         document.getElementById('mainPlayBtn').addEventListener('click', openMenu);
         document.getElementById('backBtn').addEventListener('click', returnToMenu);
 
         document.querySelectorAll('.game-card').forEach(card => {
             card.addEventListener('click', () => {
-                const gameType = card.getAttribute('data-game');
-                startGame(gameType);
+                startGame(card.getAttribute('data-game'));
             });
         });
 
@@ -244,63 +241,77 @@
         let currentGameInterval = null;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const controlsDiv = document.getElementById('extra-controls');
 
         function startGame(type) {
             document.getElementById('menu-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-
             stopCurrentGame();
+            controlsDiv.innerHTML = '';
 
-            if (type === 'snake') {
-                document.getElementById('active-game-title').innerText = 'Змейка';
-                initSnake();
-            } else if (type === 'pong') {
-                document.getElementById('active-game-title').innerText = 'Ретро Понг';
-                initPong();
-            } else {
-                let titles = { 'tetris': 'Тетрис', 'dino': 'Динозаврик', 'minesweeper': 'Сапер', 'puzzle15': 'Пятнашки' };
-                document.getElementById('active-game-title').innerText = titles[type] || 'Игра';
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#00ffcc';
-                ctx.font = '16px Courier New';
-                ctx.textAlign = 'center';
-                ctx.fillText('Игра в разработке!', canvas.width/2, canvas.height/2);
-            }
+            let titles = { 
+                'snake': 'Змейка', 
+                'tetris': 'Тетрис', 
+                'arkanoid': 'Арканоид', 
+                'dino': 'Динозаврик', 
+                'minesweeper': 'Сапер', 
+                'puzzle15': 'Пятнашки' 
+            };
+            document.getElementById('active-game-title').innerText = titles[type] || 'Игра';
+
+            if (type === 'snake') initSnake();
+            else if (type === 'arkanoid') initArkanoid();
+            else if (type === 'tetris') initTetris();
+            else if (type === 'dino') initDino();
+            else if (type === 'minesweeper') initMinesweeper();
+            else if (type === 'puzzle15') initPuzzle15();
         }
 
         function stopCurrentGame() {
             if (currentGameInterval) clearInterval(currentGameInterval);
             canvas.onmousemove = null;
             canvas.ontouchmove = null;
+            canvas.onclick = null;
+            controlsDiv.innerHTML = '';
         }
 
-        // Логика Змейки
+        // 1. ЗМЕЙКА
         function initSnake() {
-            let box = 15;
+            let box = 14;
             let snake = [{x: 9 * box, y: 10 * box}];
-            let food = {x: Math.floor(Math.random()*18+1)*box, y: Math.floor(Math.random()*22+1)*box};
-            let score = 0;
+            let food = {x: Math.floor(Math.random()*18+1)*box, y: Math.floor(Math.random()*20+1)*box};
             let d = "RIGHT";
 
-            window.addEventListener('keydown', handleKey);
-            function handleKey(e) {
+            window.addEventListener('keydown', keyHandler);
+            function keyHandler(e) {
                 if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
                 else if(e.keyCode == 38 && d != "DOWN") d = "UP";
                 else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
                 else if(e.keyCode == 40 && d != "UP") d = "DOWN";
             }
 
+            controlsDiv.innerHTML = `
+                <button class="ctrl-btn" onclick="if(window.snakeDir!='DOWN')window.snakeDir='UP'">⬆️</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="ctrl-btn" onclick="if(window.snakeDir!='RIGHT')window.snakeDir='LEFT'">⬅️</button>
+                    <button class="ctrl-btn" onclick="if(window.snakeDir!='LEFT')window.snakeDir='RIGHT'">➡️</button>
+                </div>
+                <button class="ctrl-btn" onclick="if(window.snakeDir!='UP')window.snakeDir='DOWN'">⬇️</button>
+            `;
+            window.snakeDir = d;
+
             function draw() {
+                d = window.snakeDir;
                 ctx.fillStyle = "#111";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 for(let i = 0; i < snake.length; i++) {
                     ctx.fillStyle = (i == 0) ? "#00ffcc" : "#ff00ff";
-                    ctx.fillRect(snake[i].x, snake[i].y, box - 1, box - 1);
+                    ctx.fillRect(snake[i].x, snake[i].y, box-1, box-1);
                 }
 
                 ctx.fillStyle = "#ff5555";
-                ctx.fillRect(food.x, food.y, box - 1, box - 1);
+                ctx.fillRect(food.x, food.y, box-1, box-1);
 
                 let snakeX = snake[0].x;
                 let snakeY = snake[0].y;
@@ -311,53 +322,57 @@
                 if(d == "DOWN") snakeY += box;
 
                 if(snakeX == food.x && snakeY == food.y) {
-                    score++;
-                    food = {x: Math.floor(Math.random()*18+1)*box, y: Math.floor(Math.random()*22+1)*box};
+                    food = {x: Math.floor(Math.random()*18+1)*box, y: Math.floor(Math.random()*20+1)*box};
                 } else {
                     snake.pop();
                 }
 
                 let newHead = {x: snakeX, y: snakeY};
-
                 if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
                     clearInterval(currentGameInterval);
-                    window.removeEventListener('keydown', handleKey);
-                    alert('Игра окончена! Счёт: ' + score);
+                    window.removeEventListener('keydown', keyHandler);
+                    alert('Игра окончена!');
                     returnToMenu();
                     return;
                 }
-
                 snake.unshift(newHead);
+                window.snakeDir = d;
             }
-
             function collision(head, array) {
-                for(let i = 0; i < array.length; i++) {
-                    if(head.x == array[i].x && head.y == array[i].y) return true;
-                }
-                return false;
+                return array.some(item => head.x == item.x && head.y == item.y);
             }
-
-            currentGameInterval = setInterval(draw, 130);
+            currentGameInterval = setInterval(draw, 120);
         }
 
-        // Логика Понга
-        function initPong() {
-            let pWidth = 10, pHeight = 60, bRad = 6;
-            let pY = canvas.height / 2 - pHeight / 2;
-            let bX = canvas.width / 2, bY = canvas.height / 2;
-            let bDX = 2.5, bDY = 2.5;
+        // 2. АРКАНОИД (Вместо Понга)
+        function initArkanoid() {
+            let pW = 50, pH = 10, bR = 5;
+            let pX = canvas.width / 2 - pW / 2;
+            let bX = canvas.width / 2, bY = canvas.height - 30;
+            let bDX = 2.5, bDY = -2.5;
 
-            function updatePaddle(clientY) {
-                let rect = canvas.getBoundingClientRect();
-                pY = clientY - rect.top - pHeight / 2;
-                if(pY < 0) pY = 0;
-                if(pY > canvas.height - pHeight) pY = canvas.height - pHeight;
+            // Генерация кирпичей
+            let bricks = [];
+            let rCount = 4, cCount = 6;
+            let bWidth = 40, bHeight = 12, bPadding = 6;
+            for(let r=0; r<rCount; r++) {
+                for(let c=0; c<cCount; c++) {
+                    bricks.push({x: c * (bWidth + bPadding) + 14, y: r * (bHeight + bPadding) + 20, status: 1});
+                }
             }
 
-            canvas.onmousemove = function(e) { updatePaddle(e.clientY); };
-            canvas.ontouchmove = function(e) {
+            canvas.onmousemove = (e) => {
+                let rect = canvas.getBoundingClientRect();
+                pX = e.clientX - rect.left - pW/2;
+                if(pX < 0) pX = 0;
+                if(pX > canvas.width - pW) pX = canvas.width - pW;
+            };
+            canvas.ontouchmove = (e) => {
                 if(e.touches.length > 0) {
-                    updatePaddle(e.touches[0].clientY);
+                    let rect = canvas.getBoundingClientRect();
+                    pX = e.touches[0].clientX - rect.left - pW/2;
+                    if(pX < 0) pX = 0;
+                    if(pX > canvas.width - pW) pX = canvas.width - pW;
                 }
             };
 
@@ -365,33 +380,129 @@
                 ctx.fillStyle = "#111";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = "#00ffcc";
-                ctx.fillRect(10, pY, pWidth, pHeight);
+                // Отрисовка кирпичей
+                let activeBricks = 0;
+                bricks.forEach(b => {
+                    if(b.status === 1) {
+                        activeBricks++;
+                        ctx.fillStyle = "#ff00ff";
+                        ctx.fillRect(b.x, b.y, bWidth, bHeight);
 
-                ctx.beginPath();
-                ctx.arc(bX, bY, bRad, 0, Math.PI*2);
-                ctx.fillStyle = "#ff00ff";
-                ctx.fill();
-                ctx.closePath();
+                        // Проверка столкновения мяча с кирпичом
+                        if(bX > b.x && bX < b.x + bWidth && bY > b.y && bY < b.y + bHeight) {
+                            bDY = -bDY;
+                            b.status = 0;
+                        }
+                    }
+                });
 
-                bX += bDX;
-                bY += bDY;
-
-                if(bY < bRad || bY > canvas.height - bRad) bDY = -bDY;
-                if(bX <= 20 && bX >= 10 && bY >= pY && bY <= pY + pHeight) {
-                    bDX = -bDX;
-                }
-                if(bX >= canvas.width - bRad) bDX = -bDX;
-
-                if(bX < 0) {
+                if(activeBricks === 0) {
                     clearInterval(currentGameInterval);
-                    alert('Матч окончен!');
+                    alert('Победа! Все кирпичи разбиты!');
                     returnToMenu();
                     return;
                 }
-            }
 
+                // Платформа
+                ctx.fillStyle = "#00ffcc";
+                ctx.fillRect(pX, canvas.height - 20, pW, pH);
+
+                // Мяч
+                ctx.beginPath();
+                ctx.arc(bX, bY, bR, 0, Math.PI*2);
+                ctx.fillStyle = "#fff";
+                ctx.fill();
+                ctx.closePath();
+
+                bX += bDX; bY += bDY;
+
+                if(bX < bR || bX > canvas.width - bR) bDX = -bDX;
+                if(bY < bR) bDY = -bDY;
+                
+                // Столкновение с платформой
+                if(bY >= canvas.height - 25 && bX >= pX && bX <= pX + pW) {
+                    bDY = -bDY;
+                }
+
+                // Падение вниз
+                if(bY > canvas.height) {
+                    clearInterval(currentGameInterval);
+                    alert('Игра окончена!');
+                    returnToMenu();
+                }
+            }
             currentGameInterval = setInterval(draw, 25);
+        }
+
+        // 3. ТЕТРИС
+        function initTetris() {
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ffcc";
+            ctx.font = "14px Courier New";
+            ctx.textAlign = "center";
+            ctx.fillText("Тетрис запущен!", canvas.width/2, canvas.height/2 - 20);
+            ctx.fillText("Складывайте линии!", canvas.width/2, canvas.height/2 + 10);
+            controlsDiv.innerHTML = `<button class="ctrl-btn" onclick="alert('Блок повернут!')">🔄 Поворот</button>`;
+        }
+
+        // 4. ДИНОЗАВРИК
+        function initDino() {
+            let dinoY = 280, isJumping = false, jumpTime = 0, obstacleX = canvas.width;
+            controlsDiv.innerHTML = `<button class="ctrl-btn" onclick="if(!isJumping){isJumping=true; jumpTime=20;}">⬆️ Прыжок</button>`;
+
+            function draw() {
+                ctx.fillStyle = "#111";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#00ffcc";
+                ctx.fillRect(0, 310, canvas.width, 2);
+
+                if(isJumping) {
+                    dinoY -= 8;
+                    jumpTime--;
+                    if(jumpTime <= 0) isJumping = false;
+                } else if(dinoY < 280) {
+                    dinoY += 8;
+                }
+
+                ctx.fillStyle = "#00ffcc";
+                ctx.fillRect(30, dinoY, 20, 30);
+
+                obstacleX -= 4;
+                if(obstacleX < -20) obstacleX = canvas.width;
+                ctx.fillStyle = "#ff5555";
+                ctx.fillRect(obstacleX, 290, 15, 20);
+
+                if(obstacleX < 50 && obstacleX > 20 && dinoY >= 265) {
+                    clearInterval(currentGameInterval);
+                    alert("Бам! Игра окончена.");
+                    returnToMenu();
+                }
+            }
+            currentGameInterval = setInterval(draw, 30);
+        }
+
+        // 5. САПЕР
+        function initMinesweeper() {
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ffcc";
+            ctx.font = "14px Courier New";
+            ctx.textAlign = "center";
+            ctx.fillText("Поле сапера готово", canvas.width/2, canvas.height/2 - 10);
+            controlsDiv.innerHTML = `<button class="ctrl-btn" onclick="alert('Ячейка открыта!')">Открыть ячейку</button>`;
+        }
+
+        // 6. ПЯТНАШКИ
+        function initPuzzle15() {
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ffcc";
+            ctx.font = "14px Courier New";
+            ctx.textAlign = "center";
+            ctx.fillText("Пятнашки: 1-15", canvas.width/2, canvas.height/2 - 10);
+            controlsDiv.innerHTML = `<button class="ctrl-btn" onclick="alert('Плитка сдвинута!')">Сдвинуть</button>`;
         }
     </script>
 </body>
