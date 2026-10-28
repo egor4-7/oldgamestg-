@@ -2,90 +2,183 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Retro Game Hub</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Games Museum</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', Courier, monospace;
-            -webkit-tap-highlight-color: transparent;
+            font-family: monospace;
         }
         body {
-            background-color: #0d0f18;
-            color: #00ffcc;
+            background-color: #0d061a;
+            color: #ffffff;
+            padding: 16px;
+        }
+        header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #231934;
+            padding-bottom: 12px;
         }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            text-align: center;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-        }
-        p {
-            font-size: 14px;
-            color: #8b9bb4;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .game-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .game-card {
-            background: #161b22;
-            border: 2px solid #30363d;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .game-card:active {
-            transform: scale(0.98);
-            border-color: #00ffcc;
-        }
-        .game-title {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 18px;
             font-weight: bold;
-            color: #ffffff;
-            margin-bottom: 5px;
+            letter-spacing: 1px;
         }
-        .game-desc {
+        .logo span {
+            color: #ffffff;
+        }
+        .header-icons {
+            display: flex;
+            gap: 16px;
+            color: #b0a8c0;
+            font-size: 18px;
+        }
+        .breadcrumb {
             font-size: 12px;
-            color: #8b9bb4;
+            color: #8c7dabc;
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-size: 28px;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        p.desc {
+            font-size: 13px;
+            color: #b0a8c0;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #3d2c5e;
+            color: #d1c9e8;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .search-box input {
+            flex: 1;
+            background: #150a24;
+            border: 1px solid #3d2c5e;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-box button {
+            background: #e65cff;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 0 24px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .card {
+            background: #150a24;
+            border: 1px solid #3d2c5e;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .card-tag {
+            background: rgba(230, 92, 255, 0.15);
+            color: #e65cff;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .card p {
+            font-size: 12px;
+            color: #b0a8c0;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+        .btn-outline {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid #3d2c5e;
+            color: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
-    <h1>RETRO GAME HUB 🕹️</h1>
-    <p>Выберите игру для запуска прямо в Telegram</p>
+    <header>
+        <div class="logo">
+            🍄 <span>oldgames.app</span>
+        </div>
+        <div class="header-icons">
+            🔍 🌙 ☰
+        </div>
+    </header>
 
-    <div class="game-grid">
-        <div class="game-card" onclick="alert('Скоро здесь будет игра Змейка!')">
-            <div class="game-title">🐍 Змейка (Snake)</div>
-            <div class="game-desc">Классическая аркада из 90-х</div>
-        </div>
-        <div class="game-card" onclick="alert('Скоро здесь будет Арканоид!')">
-            <div class="game-title">🧱 Арканоид</div>
-            <div class="game-desc">Разбивайте блоки платформой</div>
-        </div>
+    <div class="breadcrumb">Home / Games</div>
+
+    <h1>All games</h1>
+    
+    <p class="desc">
+        Search the full library of classic console games and play them free in your browser on oldgames.app. Pick a console badge below or search by title to jump straight into a game.
+    </p>
+
+    <div class="badges">
+        <div class="badge">NES</div>
+        <div class="badge">SNES</div>
+        <div class="badge">GBA</div>
+        <div class="badge">GBC</div>
+        <div class="badge">Neo Geo</div>
+        <div class="badge">Sega Genesis</div>
+        <div class="badge">N46</div>
+        <div class="badge">PS1</div>
     </div>
 
-    <script>
-        // Инициализация Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-    </script>
+    <div class="search-box">
+        <input type="text" placeholder="Search by title...">
+        <button>Search</button>
+    </div>
+
+    <div class="card">
+        <div class="card-tag">Your games</div>
+        <h2>Play your uploaded ROMs</h2>
+        <p>Save ROMs in this browser on your device. Pick a console, drop a file, and play instantly — nothing is uploaded to our servers.</p>
+        <a href="#" class="btn-outline">Open Local Shelf</a>
+    </div>
+
 </body>
 </html>
