@@ -2,27 +2,213 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пекарня «У бабушки»</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Подключаем официальный скрипт Telegram Web App -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>2048  Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--tg-theme-bg-color, #faf8ef);
+            color: var(--tg-theme-text-color, #776e65);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 48px;
+            margin: 0 0 10px 0;
+            color: #8f7a66;
+        }
+        .score-container {
+            background: #bbada0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .grid {
+            width: 320px;
+            height: 320px;
+            background: #bbada0;
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .cell {
+            background: rgba(238, 228, 218, 0.35);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #776e65;
+        }
+        /* Цвета плиток 2048 */
+        .tile-2 { background: #eee4da; }
+        .tile-4 { background: #ede0c8; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; }
+        .tile-16 { background: #f59563; color: #f9f6f2; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 20px; }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 20px; }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 20px; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 16px; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 16px; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Свежая выпечка 🥐</h1>
-        <div id="catalog" class="catalog">
-            <!-- Карточки товаров генерируются через JavaScript -->
-        </div>
-        
-        <div class="cart">
-            <h2>Корзина</h2>
-            <div id="cart-items">Пусто</div>
-            <div class="total">Итого: <span id="total-price">0</span> ₽</div>
-            <button id="order-btn" class="btn" disabled>Оплатить заказ</button>
-        </div>
-    </div>
 
-    <script src="app.js"></script>
+    <h1>2048</h1>
+    <div class="score-container">Счет: <span id="score">0</span></div>
+    
+    <div class="grid" id="grid"></div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let board = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ];
+        let score = 0;
+
+        function initGame() {
+            addNewNumber();
+            addNewNumber();
+            updateBoard();
+        }
+
+        function addNewNumber() {
+            let emptyCells = [];
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    if (board[r][c] === 0) emptyCells.push({r, c});
+                }
+            }
+            if (emptyCells.length > 0) {
+                let randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[randomCell.r][randomCell.c] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function updateBoard() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    let val = board[r][c];
+                    let cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    if (val > 0) {
+                        cell.classList.add(`tile-${val}`);
+                        cell.innerText = val;
+                    }
+                    gridEl.appendChild(cell);
+                }
+            }
+            document.getElementById('score').innerText = score;
+        }
+
+        // Простейшее управление свайпами для телефона
+        let startX, startY;
+        window.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchend', e => {
+            if (!startX || !startY) return;
+            let endX = e.changedTouches[0].clientX;
+            let endY = e.changedTouches[0].clientY;
+            let diffX = endX - startX;
+            let diffY = endY - startY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 50) moveRight();
+                else if (diffX < -50) moveLeft();
+            } else {
+                if (diffY > 50) moveDown();
+                else if (diffY < -50) moveUp();
+            }
+            startX = null;
+            startY = null;
+        });
+
+        function slide(row) {
+            let arr = row.filter(val => val);
+            for (let i = 0; i < arr.length - 1; i++) {
+                if (arr[i] === arr[i + 1]) {
+                    arr[i] *= 2;
+                    score += arr[i];
+                    arr[i + 1] = 0;
+                }
+            }
+            arr = arr.filter(val => val);
+            while (arr.length < 4) arr.push(0);
+            return arr;
+        }
+
+        function moveLeft() {
+            let changed = false;
+            for (let r = 0; r < 4; r++) {
+                let original = [...board[r]];
+                board[r] = slide(board[r]);
+                if (original.some((val, i) => val !== board[r][i])) changed = true;
+            }
+            if (changed) { addNewNumber(); updateBoard(); }
+        }
+
+        function moveRight() {
+            let changed = false;
+            for (let r = 0; r < 4; r++) {
+                let original = [...board[r]];
+                board[r] = slide(board[r].reverse()).reverse();
+                if (original.some((val, i) => val !== board[r][i])) changed = true;
+            }
+            if (changed) { addNewNumber(); updateBoard(); }
+        }
+
+        function moveUp() {
+            let changed = false;
+            for (let c = 0; c < 4; c++) {
+                let col = [board[0][c], board[1][c], board[2][c], board[3][c]];
+                let original = [...col];
+                col = slide(col);
+                for (let r = 0; r < 4; r++) board[r][c] = col[r];
+                if (original.some((val, i) => val !== board[i][c])) changed = true;
+            }
+            if (changed) { addNewNumber(); updateBoard(); }
+        }
+
+        function moveDown() {
+            let changed = false;
+            for (let c = 0; c < 4; c++) {
+                let col = [board[0][c], board[1][c], board[2][c], board[3][c]];
+                let original = [...col];
+                col = slide(col.reverse()).reverse();
+                for (let r = 0; r < 4; r++) board[r][c] = col[r];
+                if (original.some((val, i) => val !== board[i][c])) changed = true;
+            }
+            if (changed) { addNewNumber(); updateBoard(); }
+        }
+
+        initGame();
+    </script>
 </body>
 </html>
