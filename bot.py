@@ -27,7 +27,7 @@ threading.Thread(target=run_health_check_server, daemon=True).start()
 # --- Логика Telegram-бота для игр ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Ссылка на ваше мини-приложение (хаб с играми на Vercel)
-    web_app_url = "https://folio1.vercel.app"
+    web_app_url = "https://oldgamestg.vercel.app"
     
     # Создаем кнопку, которая открывает мини-приложение с играми
     keyboard = [
