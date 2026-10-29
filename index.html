@@ -2,14 +2,46 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=/games">
-    <title>Retro Games Museum - Redirecting...</title>
-    <script>
-        window.location.replace("/games");
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Games Museum - Главная</title>
+    <style>
+        body {
+            background-color: #0d061a;
+            color: #ffffff;
+            font-family: monospace;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        h1 {
+            color: #e65cff;
+            font-size: 2.5rem;
+        }
+        p {
+            font-size: 1.2rem;
+            color: #cccccc;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #e65cff;
+            color: #0d061a;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background-color: #ff80ff;
+        }
+    </style>
 </head>
-<body style="background-color: #0d061a; color: #ffffff; font-family: monospace; text-align: center; padding-top: 50px;">
-    <p>Перенаправление на каталог игр...</p>
-    <p>Если этого не произошло автоматически, перейдите по ссылке: <a href="/games" style="color: #e65cff;">Открыть игры</a></p>
+<body>
+    <h1>Добро пожаловать в Retro Games Museum!</h1>
+    <p>Ваша коллекция любимых ретро-игр и аркад.</p>
+    
+    <!-- Кнопка перехода в каталог игр -->
+    <a href="/games" class="btn">Открыть каталог игр</a>
 </body>
 </html>
