@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Games Museum - Главная</title>
+    <title>Retro Games Museum</title>
     <style>
         body {
             background-color: #0d061a;
             color: #ffffff;
             font-family: monospace;
             text-align: center;
-            padding: 50px;
+            padding-top: 50px;
             margin: 0;
         }
         h1 {
@@ -21,27 +21,34 @@
             font-size: 1.2rem;
             color: #cccccc;
         }
-        .btn {
+        /* Стили для полноценной интерактивной кнопки */
+        .open-site-btn {
             display: inline-block;
-            margin-top: 20px;
-            padding: 12px 24px;
+            margin-top: 30px;
+            padding: 14px 28px;
             background-color: #e65cff;
             color: #0d061a;
             text-decoration: none;
             font-weight: bold;
-            border-radius: 8px;
-            transition: 0.3s;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(230, 92, 255, 0.4);
+            transition: all 0.3s ease;
         }
-        .btn:hover {
+        .open-site-btn:hover {
             background-color: #ff80ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(230, 92, 255, 0.6);
         }
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать в Retro Games Museum!</h1>
-    <p>Ваша коллекция любимых ретро-игр и аркад.</p>
+    <h1>Retro Games Museum</h1>
+    <p>Добро пожаловать в коллекцию классических игр и аркад!</p>
     
-    <!-- Кнопка перехода в каталог игр -->
-    <a href="/games" class="btn">Открыть каталог игр</a>
+    <!-- Кнопка для открытия вашего сайта или нужного раздела -->
+    <a href="https://oldgames.app/games/ps1/worlds-scariest-police-chases-ps1-9744" target="_blank" class="open-site-btn">
+        Открыть игру / сайт
+    </a>
 </body>
 </html>
